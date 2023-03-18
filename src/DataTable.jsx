@@ -1,14 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { Table } from "antd";
 // import EXIF from "exif-js";
-import Image from './assets/panorama/Building.jpg';
+import Image from "./assets/panorama/Building.jpg";
+import {createClient} from "@sanity/client";
+
+const client = createClient({
+  projectId: "0u3qo37j",
+  dataset: "production",
+  useCdn: true,
+});
 
 const columns = [
   {
     title: "File Name",
     dataIndex: "fileName",
     key: "fileName",
-    render: (text => <a>{text}</a>)
+    render: (text) => <a>{text}</a>,
   },
   {
     title: "File Size",
@@ -64,50 +71,65 @@ const columns = [
 ];
 
 const DataTable = () => {
-  const [panoramas, setPanoramas] = useState([{
-    fileName:'Hello World',
-    fileSize: '100kb',
-    fileType: 'Jpeg',
-    dateCreated: 'Today',
-    dateModified: 'Yesterday',
-    dimensions: `1000 x 2000`,
-    resolutionPpi: 'idk',
-    colorSpace: 'idk',
-    cameraMakeModel: `Cannon`,
-    exposureSettings: `Shutter Speed: 200, Aperture: f/9, ISO: 8`,
-  }]);
+  const [panoramas, setPanoramas] = useState([
+    {
+      fileName: "Hello World",
+      fileSize: "100kb",
+      fileType: "Jpeg",
+      dateCreated: "Today",
+      dateModified: "Yesterday",
+      dimensions: `1000 x 2000`,
+      resolutionPpi: "idk",
+      colorSpace: "idk",
+      cameraMakeModel: `Cannon`,
+      exposureSettings: `Shutter Speed: 200, Aperture: f/9, ISO: 8`,
+    },
+  ]);
 
   // Load panoramas
-  useEffect(()=>{
-     // Load image metadata
+  useEffect(() => {
+    // Load image metadata from Sanity Backend
+    const fetchData = async () => {
+      const query = `*[_type == 'images']{
+        _id,
+        title,
+        image {
+          "metadata" : asset->metadata,
+          "url": asset->url
+        }
+      }|order(_createdAt asc)`;
+      const result = await client.fetch(query);
+      console.log(result)
+    };
+    fetchData();
     const loadImageMetadata = (file) => {
-        EXIF.getData(file, function () {
-          const dateCreated = EXIF.getTag(this, "DateTimeOriginal");
-          const make = EXIF.getTag(this, "Make");
-          const model = EXIF.getTag(this, "Model");
-          const exposureTime = EXIF.getTag(this, "ExposureTime");
-          const fNumber = EXIF.getTag(this, "FNumber");
-          const iso = EXIF.getTag(this, "ISOSpeedRatings");
+      EXIF.getData(file, function () {
+        const dateCreated = EXIF.getTag(this, "DateTimeOriginal");
+        const make = EXIF.getTag(this, "Make");
+        const model = EXIF.getTag(this, "Model");
+        const exposureTime = EXIF.getTag(this, "ExposureTime");
+        const fNumber = EXIF.getTag(this, "FNumber");
+        const iso = EXIF.getTag(this, "ISOSpeedRatings");
 
-          return {
-            fileSize: file.size,
-            fileType: file.type,
-            dateCreated,
-            dateModified: file.lastModifiedDate,
-            dimensions: `${this.imageWidth} x ${this.imageHeight}`,
-            resolutionPpi: this.resolutionUnit === 3 ? this.xResolution : null,
-            colorSpace: this.getColorSpace(),
-            cameraMakeModel: `${make} ${model}`,
-            exposureSettings: `Shutter Speed: ${exposureTime}, Aperture: f/${fNumber}, ISO: ${iso}`,
-          };
-        });
+        return {
+          fileSize: file.size,
+          fileType: file.type,
+          dateCreated,
+          dateModified: file.lastModifiedDate,
+          dimensions: `${this.imageWidth} x ${this.imageHeight}`,
+          resolutionPpi: this.resolutionUnit === 3 ? this.xResolution : null,
+          colorSpace: this.getColorSpace(),
+          cameraMakeModel: `${make} ${model}`,
+          exposureSettings: `Shutter Speed: ${exposureTime}, Aperture: f/${fNumber}, ISO: ${iso}`,
+        };
+      });
     };
     // const loadedPanoramas = () =>{
     //   const metadata = loadImageMetadata(Image);
     //   return { ...metadata, fileName: 'Hello' };
     // }
     // setPanoramas(loadedPanoramas)
-  },[])
+  }, []);
 
   return <Table dataSource={panoramas} columns={columns} />;
 };
