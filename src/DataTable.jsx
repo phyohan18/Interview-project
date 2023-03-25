@@ -1,91 +1,114 @@
-import React, { useState, useEffect } from "react";
-import { Table } from "antd";
-// import EXIF from "exif-js";
-import Image from "./assets/panorama/Building.jpg";
-import {createClient} from "@sanity/client";
+import React, { useState, useEffect , useRef } from "react";
+import { Table, Space,Button } from "antd";
 
-const client = createClient({
+import { createClient } from "@sanity/client";
+import imageUrlBuilder from "@sanity/image-url";
+import MyModal from "./MyModal";
+
+const sanityClient = createClient({
   projectId: "0u3qo37j",
   dataset: "production",
+  apiVersion: "v1",
   useCdn: true,
 });
 
-const columns = [
-  {
-    title: "File Name",
-    dataIndex: "fileName",
-    key: "fileName",
-    render: (text) => <a>{text}</a>,
-  },
-  {
-    title: "File Size",
-    dataIndex: "fileSize",
-    key: "fileSize",
-  },
-  {
-    title: "File Type",
-    dataIndex: "fileType",
-    key: "fileType",
-  },
-  {
-    title: "Date Created",
-    dataIndex: "dateCreated",
-    key: "dateCreated",
-  },
-  {
-    title: "Date Modified",
-    dataIndex: "dateModified",
-    key: "dateModified",
-  },
-  {
-    title: "Dimensions",
-    dataIndex: "dimensions",
-    key: "dimensions",
-  },
-  {
-    title: "Resolution (PPI)",
-    dataIndex: "resolutionPpi",
-    key: "resolutionPpi",
-  },
-  {
-    title: "Color Space",
-    dataIndex: "colorSpace",
-    key: "colorSpace",
-  },
-  {
-    title: "Camera Make and Model",
-    dataIndex: "cameraMakeModel",
-    key: "cameraMakeModel",
-  },
-  {
-    title: "Exposure Settings",
-    dataIndex: "exposureSettings",
-    key: "exposureSettings",
-  },
-  {
-    title: "Action",
-    dataIndex: "Action",
-    key: "Action",
-    render: () => <a onClick={() => setOpen(true)}>View</a>,
-  },
-];
+const builder = imageUrlBuilder(sanityClient);
+const urlFor = (source) => builder.image(source);
 
 const DataTable = () => {
-  const [panoramas, setPanoramas] = useState([
-    {
-      fileName: "Hello World",
-      fileSize: "100kb",
-      fileType: "Jpeg",
-      dateCreated: "Today",
-      dateModified: "Yesterday",
-      dimensions: `1000 x 2000`,
-      resolutionPpi: "idk",
-      colorSpace: "idk",
-      cameraMakeModel: `Cannon`,
-      exposureSettings: `Shutter Speed: 200, Aperture: f/9, ISO: 8`,
-    },
-  ]);
 
+  const [modalVisible, setModalVisible] = useState(false);
+  const imgRef = useRef();
+
+  const showModal = (image) => {
+    setModalVisible(true);
+    imgRef.current = image;
+  };
+
+  const handleCancel = () => {
+    setModalVisible(false);
+  };
+
+  const [panoramas, setPanoramas] = useState([]);
+
+  const columns = [
+    {
+      title: "No",
+      dataIndex: "key",
+    },
+    {
+      title: "File Name",
+      dataIndex: "fileName",
+      key: "fileName",
+      render: (_, record) => {
+        return (
+          <Space wrap size={8}>
+            <img
+              width={35}
+              height={35}
+              src={urlFor(record.fileURL)
+                .width(35)
+                .height(35)
+                .format("webp")
+                .url()}
+            />
+            {record.fileName}
+          </Space>
+        );
+      },
+    },
+    // {
+    //   title: "File Size",
+    //   dataIndex: "fileSize",
+    //   key: "fileSize",
+    // },
+    // {
+    //   title: "File Type",
+    //   dataIndex: "fileType",
+    //   key: "fileType",
+    // },
+    // {
+    //   title: "Date Created",
+    //   dataIndex: "dateCreated",
+    //   key: "dateCreated",
+    // },
+    // {
+    //   title: "Date Modified",
+    //   dataIndex: "dateModified",
+    //   key: "dateModified",
+    // },
+    // {
+    //   title: "Dimensions",
+    //   dataIndex: "dimensions",
+    //   key: "dimensions",
+    // },
+    // {
+    //   title: "Resolution (PPI)",
+    //   dataIndex: "resolutionPpi",
+    //   key: "resolutionPpi",
+    // },
+    // {
+    //   title: "Color Space",
+    //   dataIndex: "colorSpace",
+    //   key: "colorSpace",
+    // },
+    // {
+    //   title: "Camera Make and Model",
+    //   dataIndex: "cameraMakeModel",
+    //   key: "cameraMakeModel",
+    // },
+    // {
+    //   title: "Exposure Settings",
+    //   dataIndex: "exposureSettings",
+    //   key: "exposureSettings",
+    // },
+    {
+      title: "Action",
+      dataIndex: "Action",
+      key: "Action",
+      render: (_, record) => <Button onClick={()=>showModal(record.fileURL)}>View 360&#176;</Button>,
+    },
+  ];
   // Load panoramas
   useEffect(() => {
     // Load image metadata from Sanity Backend
@@ -98,8 +121,18 @@ const DataTable = () => {
           "url": asset->url
         }
       }|order(_createdAt asc)`;
-      const result = await client.fetch(query);
-      console.log(result)
+      const result = await sanityClient.fetch(query);
+      const loadedPanoramas = result.map((item, index) => {
+        return {
+          key: index,
+          fileName: item.title,
+          fileURL: item.image.url,
+          fileType: "",
+          dimensions: `${item.image.metadata.dimensions.width} x ${item.image.metadata.dimensions.height}`,
+          ...item.image.metadata,
+        };
+      });
+      setPanoramas(loadedPanoramas);
     };
     fetchData();
     const loadImageMetadata = (file) => {
@@ -131,7 +164,12 @@ const DataTable = () => {
     // setPanoramas(loadedPanoramas)
   }, []);
 
-  return <Table dataSource={panoramas} columns={columns} />;
+  return (
+    <>
+      <Table dataSource={panoramas} columns={columns} />
+      <MyModal visible={modalVisible} onCancel={handleCancel} curImg={imgRef.current} />
+    </>
+  );
 };
 
 export default DataTable;

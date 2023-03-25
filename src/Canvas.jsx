@@ -1,11 +1,9 @@
-import { useEffect,useState } from "react";
-
+import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
-import Stats from "three/examples/jsm/libs/stats.module";
 
-
-const ThreeJS = ({ image }) => {
-  const [curImage , setCurImage ] = useState(image);
+const Canvas = ({ curImg }) => {
+  const canvasRef = useRef();
+  const sphereMeshRef = useRef();
 
   useEffect(() => {
     let isUserInteracting = false,
@@ -18,15 +16,7 @@ const ThreeJS = ({ image }) => {
       phi = 0,
       theta = 0;
 
-    const canvas = document.getElementById("myThreeJsCanvas");
-
-    //Showing FPS
-    const stats = Stats();
-    canvas.appendChild(stats.dom);
-
-    //Scene Set up
     const scene = new THREE.Scene();
-
     //Camera Setup
     const fov = 75;
     const aspect = window.innerWidth / window.innerHeight;
@@ -36,50 +26,46 @@ const ThreeJS = ({ image }) => {
     let camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
     //Render Setup
-    let renderer = new THREE.WebGL1Renderer({
-      canvas: canvas,
+    let renderer = new THREE.WebGLRenderer({
+      canvas: canvasRef.current,
       antialias: true,
     });
 
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setSize(
+      canvasRef.current.clientWidth,
+      canvasRef.current.clientHeight
+    );
+
     renderer.setPixelRatio(window.devicePixelRatio);
+    canvasRef.current.style.touchAction = "none";
+    canvasRef.current.addEventListener("pointerdown", onPointerDown);
 
-    canvas.style.touchAction = "none";
-    canvas.addEventListener("pointerdown", onPointerDown);
+    canvasRef.current.addEventListener("wheel", onDocumentMouseWheel);
 
-    canvas.addEventListener("wheel", onDocumentMouseWheel);
-
-    canvas.addEventListener("dragover", function (event) {
+    canvasRef.current.addEventListener("dragover", function (event) {
       event.preventDefault();
       event.dataTransfer.dropEffect = "copy";
     });
 
-    canvas.addEventListener("dragenter", function () {
-        canvas.body.style.opacity = 0.5;
+    canvasRef.current.addEventListener("dragenter", function () {
+      canvasRef.current.body.style.opacity = 0.5;
     });
 
-    canvas.addEventListener("dragleave", function () {
-        canvas.body.style.opacity = 1;
+    canvasRef.current.addEventListener("dragleave", function () {
+      canvasRef.current.body.style.opacity = 1;
     });
-
-    // loading texture
-    let loader = new THREE.TextureLoader();
-    let texture = loader.load(curImage);
-
     // Making Sphere
     const sphereGeometry = new THREE.SphereGeometry(500, 60, 40);
     const sphereMaterial = new THREE.MeshBasicMaterial({
-      map: texture,
       side: THREE.DoubleSide,
     });
-    const sphereMash = new THREE.Mesh(sphereGeometry, sphereMaterial);
-    scene.add(sphereMash);
+    sphereMeshRef.current = new THREE.Mesh(sphereGeometry, sphereMaterial);
+    scene.add(sphereMeshRef.current);
 
     // Recursion function for animation
     const animate = () => {
       requestAnimationFrame(animate);
       cameraRotate();
-      stats.update();
     };
     const cameraRotate = () => {
       if (isUserInteracting === false) {
@@ -116,8 +102,8 @@ const ThreeJS = ({ image }) => {
       onPointerDownLon = lon;
       onPointerDownLat = lat;
 
-      canvas.addEventListener("pointermove", onPointerMove);
-      canvas.addEventListener("pointerup", onPointerUp);
+      canvasRef.current.addEventListener("pointermove", onPointerMove);
+      canvasRef.current.addEventListener("pointerup", onPointerUp);
     }
 
     function onPointerMove(event) {
@@ -132,8 +118,8 @@ const ThreeJS = ({ image }) => {
 
       isUserInteracting = false;
 
-      canvas.removeEventListener("pointermove", onPointerMove);
-      canvas.removeEventListener("pointerup", onPointerUp);
+      canvasRef.current.removeEventListener("pointermove", onPointerMove);
+      canvasRef.current.removeEventListener("pointerup", onPointerUp);
     }
 
     function onDocumentMouseWheel(event) {
@@ -143,15 +129,28 @@ const ThreeJS = ({ image }) => {
 
       camera.updateProjectionMatrix();
     }
-  });
+    return () => {
+      scene.current.remove(sphereMeshRef.current);
+      sphereGeometry.dispose();
+      sphereMaterial.dispose();
+      renderer.dispose();
+    };
+  }, []);
 
-  return (
-    // <div>
-      <canvas id="myThreeJsCanvas"></canvas>
-      /* <button className="button" onClick={()=>setCurImage(Image2)}>Prev</button>
-      <button className="button-right" onClick={()=>setCurImage(Image)}>Next</button>
-    </div> */
-  );
+  useEffect(() => {
+    // loading texture
+    let loader = new THREE.TextureLoader();
+    let texture = loader.load(curImg);
+
+    // Updating Sphere Texture
+    sphereMeshRef.current.material.map = texture;
+    sphereMeshRef.current.material.needsUpdate = true;
+    return () => {
+      texture.dispose();
+    };
+  }, [curImg]);
+
+  return <canvas ref={canvasRef} id="three" style={{ width: "100%" }}></canvas>;
 };
 
-export default ThreeJS;
+export default Canvas;
