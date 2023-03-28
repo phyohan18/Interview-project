@@ -8,16 +8,7 @@ import { DownOutlined } from "@ant-design/icons";
 
 import exifr from "exifr";
 
-import Bridge from "./assets/panorama/Building.jpg";
-import Building from "./assets/panorama/Building.jpg";
-import Hotel from "./assets/panorama/Hotel.jpg";
-import Indoor from "./assets/panorama/Indoor.jpg";
-import Miami from "./assets/panorama/Miami.jpeg";
-import Park from "./assets/panorama/Park.jpg";
-import Sea from "./assets/panorama/Sea.jpg";
-import Sidewalk from "./assets/panorama/Sidewalk.jpg";
-import Snow from "./assets/panorama/Snow.jpeg";
-import Street from "./assets/panorama/Street.jpg";
+
 
 
 const sanityClient = createClient({
@@ -170,7 +161,7 @@ const DataTable = () => {
       }|order(_createdAt asc)`;
       const result = await sanityClient.fetch(query);
       const loadedPanoramas = result.map((item, index) => {
-        getExifData(`/public/panorama/${item.title}.jpg`);
+        getExifData(`/panorama/${item.title}.jpg`);
         return {
           key: index + 1,
           fileName: item.title,
