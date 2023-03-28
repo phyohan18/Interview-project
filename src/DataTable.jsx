@@ -1,9 +1,17 @@
-import React, { useState, useEffect , useRef } from "react";
-import { Table, Space,Button } from "antd";
+import React, { useState, useEffect, useRef } from "react";
+import { Table, Space, Dropdown } from "antd";
 
 import { createClient } from "@sanity/client";
 import imageUrlBuilder from "@sanity/image-url";
 import MyModal from "./MyModal";
+import { DownOutlined } from "@ant-design/icons";
+
+import ExifParser from "exif-parser";
+import Extract from "./Extract";
+import exifr from "exifr";
+import EXIF from "exif-js";
+
+import Bridge from "./assets/panorama/Building.jpg";
 
 const sanityClient = createClient({
   projectId: "0u3qo37j",
@@ -16,12 +24,13 @@ const builder = imageUrlBuilder(sanityClient);
 const urlFor = (source) => builder.image(source);
 
 const DataTable = () => {
-
   const [modalVisible, setModalVisible] = useState(false);
+  const [activeTab, setActiveTab] = useState("1");
   const imgRef = useRef();
 
-  const showModal = (image) => {
+  const showModal = (image, activeTab) => {
     setModalVisible(true);
+    setActiveTab(activeTab);
     imgRef.current = image;
   };
 
@@ -35,6 +44,7 @@ const DataTable = () => {
     {
       title: "No",
       dataIndex: "key",
+      ellipsis: true,
     },
     {
       title: "File Name",
@@ -56,6 +66,7 @@ const DataTable = () => {
           </Space>
         );
       },
+      ellipsis: true,
     },
     // {
     //   title: "File Size",
@@ -106,7 +117,36 @@ const DataTable = () => {
       title: "Action",
       dataIndex: "Action",
       key: "Action",
-      render: (_, record) => <Button onClick={()=>showModal(record.fileURL)}>View 360&#176;</Button>,
+      render: (_, record) => {
+        const items = [
+          {
+            key: "1",
+            label: (
+              <a onClick={() => showModal(record.fileURL, "1")}>
+                360&#176; View
+              </a>
+            ),
+          },
+          {
+            key: "2",
+            label: (
+              <a onClick={() => showModal(record.fileURL, "2")}>
+                Image Details
+              </a>
+            ),
+          },
+        ];
+        return (
+          <Dropdown menu={{ items }}>
+            <a onClick={(e) => e.preventDefault()}>
+              <Space>
+                More
+                <DownOutlined />
+              </Space>
+            </a>
+          </Dropdown>
+        );
+      },
     },
   ];
   // Load panoramas
@@ -123,8 +163,10 @@ const DataTable = () => {
       }|order(_createdAt asc)`;
       const result = await sanityClient.fetch(query);
       const loadedPanoramas = result.map((item, index) => {
+        // console.log(index == 1 && item.image.metadata)
+        getExifData(Bridge);
         return {
-          key: index,
+          key: index + 1,
           fileName: item.title,
           fileURL: item.image.url,
           fileType: "",
@@ -135,28 +177,23 @@ const DataTable = () => {
       setPanoramas(loadedPanoramas);
     };
     fetchData();
-    const loadImageMetadata = (file) => {
-      EXIF.getData(file, function () {
-        const dateCreated = EXIF.getTag(this, "DateTimeOriginal");
-        const make = EXIF.getTag(this, "Make");
-        const model = EXIF.getTag(this, "Model");
-        const exposureTime = EXIF.getTag(this, "ExposureTime");
-        const fNumber = EXIF.getTag(this, "FNumber");
-        const iso = EXIF.getTag(this, "ISOSpeedRatings");
+    async function getExifData(image_url) {
+      const exifData = await exifr.parse(image_url);
+      console.log(exifData);
+    }
 
-        return {
-          fileSize: file.size,
-          fileType: file.type,
-          dateCreated,
-          dateModified: file.lastModifiedDate,
-          dimensions: `${this.imageWidth} x ${this.imageHeight}`,
-          resolutionPpi: this.resolutionUnit === 3 ? this.xResolution : null,
-          colorSpace: this.getColorSpace(),
-          cameraMakeModel: `${make} ${model}`,
-          exposureSettings: `Shutter Speed: ${exposureTime}, Aperture: f/${fNumber}, ISO: ${iso}`,
-        };
-      });
-    };
+    // return {
+    //   fileSize: file.size,
+    //   fileType: file.type,
+    //   dateCreated,
+    //   dateModified: file.lastModifiedDate,
+    //   dimensions: `${this.imageWidth} x ${this.imageHeight}`,
+    //   resolutionPpi: this.resolutionUnit === 3 ? this.xResolution : null,
+    //   colorSpace: this.getColorSpace(),
+    //   cameraMakeModel: `${make} ${model}`,
+    //   exposureSettings: `Shutter Speed: ${exposureTime}, Aperture: f/${fNumber}, ISO: ${iso}`,
+    // };
+    //   });
     // const loadedPanoramas = () =>{
     //   const metadata = loadImageMetadata(Image);
     //   return { ...metadata, fileName: 'Hello' };
@@ -167,7 +204,13 @@ const DataTable = () => {
   return (
     <>
       <Table dataSource={panoramas} columns={columns} />
-      <MyModal visible={modalVisible} onCancel={handleCancel} curImg={imgRef.current} />
+      <Extract />
+      <MyModal
+        visible={modalVisible}
+        onCancel={handleCancel}
+        curImg={imgRef.current}
+        activeTab={activeTab}
+      />
     </>
   );
 };

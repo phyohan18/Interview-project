@@ -3,6 +3,7 @@ const { Content, Footer } = Layout;
 import { TableOutlined, PieChartOutlined } from "@ant-design/icons";
 
 import DataTable from "./DataTable";
+import Analytics from "./Analytics";
 
 function App() {
   return (
@@ -31,7 +32,7 @@ function App() {
                   </span>
                 ),
                 key: "2",
-                children: "Tab 2",
+                children: <Analytics/>,
               },
             ]}
           />

@@ -1,10 +1,11 @@
+import React from "react";
 import { Descriptions, Divider } from "antd";
 
 const ImgInfo = () => {
   return (
     <>
       <Descriptions title="Description" >
-        <Descriptions.Item label="Title">Zhou Maomao</Descriptions.Item>
+        <Descriptions.Item label="Title">Helo</Descriptions.Item>
         <Descriptions.Item label="Subject">1810000000</Descriptions.Item>
         <Descriptions.Item label="Tags">Hangzhou, Zhejiang</Descriptions.Item>
       </Descriptions>
@@ -41,4 +42,4 @@ const ImgInfo = () => {
   );
 };
 
-export default ImgInfo;
+export default React.memo(ImgInfo);

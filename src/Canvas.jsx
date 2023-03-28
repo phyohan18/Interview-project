@@ -153,4 +153,4 @@ const Canvas = ({ curImg }) => {
   return <canvas ref={canvasRef} id="three" style={{ width: "100%" }}></canvas>;
 };
 
-export default Canvas;
+export default React.memo(Canvas);
