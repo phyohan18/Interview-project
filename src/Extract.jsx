@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from "react";
-import Bridge from "./assets/panorama/Building.jpg";
+import Bridge from "./assets/panorama/Bridge.jpeg";
+import Building from "./assets/panorama/Building.jpg";
+import Hotel from "./assets/panorama/Hotel.jpg";
+import Indoor from "./assets/panorama/Indoor.jpg";
+import Miami from "./assets/panorama/Miami.jpeg";
+import Park from "./assets/panorama/Park.jpg";
+import Sea from "./assets/panorama/Sea.jpg";
+import Sidewalk from "./assets/panorama/Sidewalk.jpg";
+import Snow from "./assets/panorama/Snow.jpeg";
+import Street from "./assets/panorama/Street.jpg";
 
 function Extract() {
   const [metadata, setMetadata] = useState(null);

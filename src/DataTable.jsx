@@ -6,12 +6,19 @@ import imageUrlBuilder from "@sanity/image-url";
 import MyModal from "./MyModal";
 import { DownOutlined } from "@ant-design/icons";
 
-import ExifParser from "exif-parser";
-import Extract from "./Extract";
 import exifr from "exifr";
-import EXIF from "exif-js";
 
 import Bridge from "./assets/panorama/Building.jpg";
+import Building from "./assets/panorama/Building.jpg";
+import Hotel from "./assets/panorama/Hotel.jpg";
+import Indoor from "./assets/panorama/Indoor.jpg";
+import Miami from "./assets/panorama/Miami.jpeg";
+import Park from "./assets/panorama/Park.jpg";
+import Sea from "./assets/panorama/Sea.jpg";
+import Sidewalk from "./assets/panorama/Sidewalk.jpg";
+import Snow from "./assets/panorama/Snow.jpeg";
+import Street from "./assets/panorama/Street.jpg";
+
 
 const sanityClient = createClient({
   projectId: "0u3qo37j",
@@ -163,8 +170,7 @@ const DataTable = () => {
       }|order(_createdAt asc)`;
       const result = await sanityClient.fetch(query);
       const loadedPanoramas = result.map((item, index) => {
-        // console.log(index == 1 && item.image.metadata)
-        getExifData(Bridge);
+        getExifData(`/public/panorama/${item.title}.jpg`);
         return {
           key: index + 1,
           fileName: item.title,
@@ -204,7 +210,6 @@ const DataTable = () => {
   return (
     <>
       <Table dataSource={panoramas} columns={columns} />
-      <Extract />
       <MyModal
         visible={modalVisible}
         onCancel={handleCancel}
