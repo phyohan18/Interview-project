@@ -16,7 +16,7 @@ const Tab = ({ curImg, activeTab }) => {
           360&#176;
         </span>
       ),
-      children: <Canvas curImg={curImg} />,
+      children: <Canvas curImg={curImg.fileURL} />,
     },
     {
       key: "2",
@@ -26,7 +26,7 @@ const Tab = ({ curImg, activeTab }) => {
           Info
         </span>
       ),
-      children: <ImgInfo />,
+      children: <ImgInfo data={curImg} />,
     },
   ];
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Table, Space, Dropdown } from "antd";
+import { Table, Space, Dropdown, Tag } from "antd";
 
 import { createClient } from "@sanity/client";
 import imageUrlBuilder from "@sanity/image-url";
@@ -7,9 +7,6 @@ import MyModal from "./MyModal";
 import { DownOutlined } from "@ant-design/icons";
 
 import exifr from "exifr";
-
-
-
 
 const sanityClient = createClient({
   projectId: "0u3qo37j",
@@ -26,10 +23,10 @@ const DataTable = () => {
   const [activeTab, setActiveTab] = useState("1");
   const imgRef = useRef();
 
-  const showModal = (image, activeTab) => {
+  const showModal = (imageInfo, activeTab) => {
     setModalVisible(true);
     setActiveTab(activeTab);
-    imgRef.current = image;
+    imgRef.current = imageInfo;
   };
 
   const handleCancel = () => {
@@ -43,6 +40,8 @@ const DataTable = () => {
       title: "No",
       dataIndex: "key",
       ellipsis: true,
+      responsive: ["md"],
+      width: 70,
     },
     {
       title: "File Name",
@@ -64,53 +63,38 @@ const DataTable = () => {
           </Space>
         );
       },
-      ellipsis: true,
     },
-    // {
-    //   title: "File Size",
-    //   dataIndex: "fileSize",
-    //   key: "fileSize",
-    // },
-    // {
-    //   title: "File Type",
-    //   dataIndex: "fileType",
-    //   key: "fileType",
-    // },
-    // {
-    //   title: "Date Created",
-    //   dataIndex: "dateCreated",
-    //   key: "dateCreated",
-    // },
-    // {
-    //   title: "Date Modified",
-    //   dataIndex: "dateModified",
-    //   key: "dateModified",
-    // },
-    // {
-    //   title: "Dimensions",
-    //   dataIndex: "dimensions",
-    //   key: "dimensions",
-    // },
-    // {
-    //   title: "Resolution (PPI)",
-    //   dataIndex: "resolutionPpi",
-    //   key: "resolutionPpi",
-    // },
-    // {
-    //   title: "Color Space",
-    //   dataIndex: "colorSpace",
-    //   key: "colorSpace",
-    // },
-    // {
-    //   title: "Camera Make and Model",
-    //   dataIndex: "cameraMakeModel",
-    //   key: "cameraMakeModel",
-    // },
-    // {
-    //   title: "Exposure Settings",
-    //   dataIndex: "exposureSettings",
-    //   key: "exposureSettings",
-    // },
+    {
+      title: "Dimensions",
+      dataIndex: "dimensions",
+      key: "dimensions",
+      responsive: ["sm"],
+    },
+    {
+      title: "File Type",
+      dataIndex: "fileType",
+      key: "fileType",
+      responsive: ["md"],
+      render: (_, record) => <Tag color="magenta">{record.fileType}</Tag>,
+    },
+    {
+      title: "Camera Make and Model",
+      dataIndex: "cameraMakeModel",
+      key: "cameraMakeModel",
+      responsive: ["md"],
+      render: (_, record) => {
+        return (
+          <>
+            {record.Make || record.Model ? 
+              <>
+                <Tag color="blue">{record.Make}</Tag> 
+                <Tag color="green">{record.Model}</Tag>
+              </> : 
+              "-"}
+          </>
+        );
+      },
+    },
     {
       title: "Action",
       dataIndex: "Action",
@@ -120,7 +104,7 @@ const DataTable = () => {
           {
             key: "1",
             label: (
-              <a onClick={() => showModal(record.fileURL, "1")}>
+              <a onClick={() => showModal(record, "1")}>
                 360&#176; View
               </a>
             ),
@@ -128,7 +112,7 @@ const DataTable = () => {
           {
             key: "2",
             label: (
-              <a onClick={() => showModal(record.fileURL, "2")}>
+              <a onClick={() => showModal(record, "2")}>
                 Image Details
               </a>
             ),
@@ -160,43 +144,46 @@ const DataTable = () => {
         }
       }|order(_createdAt asc)`;
       const result = await sanityClient.fetch(query);
-      const loadedPanoramas = result.map((item, index) => {
-        getExifData(`/panorama/${item.title}.jpg`);
-        return {
-          key: index + 1,
-          fileName: item.title,
-          fileURL: item.image.url,
-          fileType: "",
-          dimensions: `${item.image.metadata.dimensions.width} x ${item.image.metadata.dimensions.height}`,
-          ...item.image.metadata,
-        };
-      });
+      const loadedPanoramas = await Promise.all(
+        result.map(async (item, index) => {
+          const exifData = await getExifData(`/panorama/${item.title}.jpg`);
+          return {
+            key: index + 1,
+            fileName: item.title,
+            fileURL: item.image.url,
+            fileType: "JPG",
+            dimensions: `${item.image.metadata.dimensions.width} x ${item.image.metadata.dimensions.height}`,
+            ...exifData,
+            width: item.image.metadata.dimensions.width,
+            height: item.image.metadata.dimensions.height
+          };
+        })
+      );
       setPanoramas(loadedPanoramas);
     };
     fetchData();
-    async function getExifData(image_url) {
-      const exifData = await exifr.parse(image_url);
-      console.log(exifData);
+    async function getExifData(image_file) {
+      const exifData = await exifr.parse(image_file);
+      return exifData;
     }
-
-    // return {
-    //   fileSize: file.size,
-    //   fileType: file.type,
-    //   dateCreated,
-    //   dateModified: file.lastModifiedDate,
-    //   dimensions: `${this.imageWidth} x ${this.imageHeight}`,
-    //   resolutionPpi: this.resolutionUnit === 3 ? this.xResolution : null,
-    //   colorSpace: this.getColorSpace(),
-    //   cameraMakeModel: `${make} ${model}`,
-    //   exposureSettings: `Shutter Speed: ${exposureTime}, Aperture: f/${fNumber}, ISO: ${iso}`,
-    // };
-    //   });
-    // const loadedPanoramas = () =>{
-    //   const metadata = loadImageMetadata(Image);
-    //   return { ...metadata, fileName: 'Hello' };
-    // }
-    // setPanoramas(loadedPanoramas)
   }, []);
+
+  // function selectCommonKeys(arr) {
+  //   if (arr.length === 0) {
+  //     return [];
+  //   }
+
+  //   // Get the keys of the first object
+  //   const keys = Object.keys(arr[0]);
+
+  //   // Filter the keys that are not present in all objects
+  //   const commonKeys = keys.filter((key) =>
+  //     arr.every((obj) => obj.hasOwnProperty(key))
+  //   );
+
+  //   return commonKeys;
+  // }
+  // console.log(selectCommonKeys(panoramas.slice(0, 3)));
 
   return (
     <>

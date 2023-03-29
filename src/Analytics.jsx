@@ -6,7 +6,8 @@ const Analytics = () => {
   useEffect(() => {
     const imageUrl =
       "https://cdn.sanity.io/images/0u3qo37j/production/a7d21f271a9e0726cf60babb7d7349078c455d26-5376x2688.jpg";
-    const apiKey = "AIzaSyD-fxP3MVBZnFGdpRiebKHwf65QSPvkbbc";
+    //const apiKey = "AIzaSyD-fxP3MVBZnFGdpRiebKHwf65QSPvkbbc";
+    const apiKey = "P3MVBZnFGdpRiebKHwf65QSPvkbbc";
     const requestUrl = `https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`;
     const requestData = {
       requests: [
