@@ -1,10 +1,9 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 
 const Canvas = ({ curImg }) => {
   const canvasRef = useRef();
   const sphereMeshRef = useRef();
-
   useEffect(() => {
     let isUserInteracting = false,
       onPointerDownMouseX = 0,
@@ -140,11 +139,11 @@ const Canvas = ({ curImg }) => {
   useEffect(() => {
     // loading texture
     let loader = new THREE.TextureLoader();
-    let texture = loader.load(curImg);
-
-    // Updating Sphere Texture
-    sphereMeshRef.current.material.map = texture;
-    sphereMeshRef.current.material.needsUpdate = true;
+    let texture = loader.load(curImg, function(){
+      // Updating Sphere Texture
+      sphereMeshRef.current.material.map = texture;
+      sphereMeshRef.current.material.needsUpdate = true;
+    });
     return () => {
       texture.dispose();
     };
