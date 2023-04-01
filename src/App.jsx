@@ -1,11 +1,11 @@
+import { TableOutlined, PieChartOutlined } from "@ant-design/icons";
 import { Tabs, Layout } from "antd";
 const { Content, Footer } = Layout;
-import { TableOutlined, PieChartOutlined } from "@ant-design/icons";
 
-import DataTable from "./DataTable";
-import Analytics from "./Analytics";
+import ImageTable from "./components/ImageTable";
+import Analytics from "./components/Analytics";
 
-function App() {
+const App = () => {
   return (
     <Layout style={{ height: "100%" }}>
       <Content style={{ padding: "0 50px" }}>
@@ -22,7 +22,7 @@ function App() {
                   </span>
                 ),
                 key: "1",
-                children: <DataTable />,
+                children: <ImageTable />,
               },
               {
                 label: (
@@ -32,7 +32,7 @@ function App() {
                   </span>
                 ),
                 key: "2",
-                children: <Analytics/>,
+                children: <Analytics />,
               },
             ]}
           />
@@ -44,6 +44,6 @@ function App() {
       </Footer>
     </Layout>
   );
-}
+};
 
 export default App;
