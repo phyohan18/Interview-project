@@ -32,3 +32,18 @@ Need to show and introduce the project demo in the second round interview.
 - Redux
 - Image Processing for advanced data analytics(Computer Vision/Machine Learning/....)
 - Served on cloud server(AWS/Google/Azure/AliCloud/....)
+
+## Completed (2/4/2023) ✅
+Link : [here](https://panorama-viewer-phi.vercel.app)
+### Used Tech Stack 💻
+
+- ReactJS
+  - React hooks
+- Redux Toolkit (State Managment)
+- ThreeJS
+- Ant Design
+- Typescript
+- Sanity.io (Content Hosting & Image Optimizing)
+- Vite.js (build-tool)
+- Served on cloud server (Vercel)
+- Used Computer Vision/Machine Learning (Google Cloud Vision) for advanced data analytics
