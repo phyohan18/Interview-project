@@ -1,16 +1,17 @@
-import PanoramaViewer from "../../PanoramaViewer";
-import ImageInfo from "../../ImageInfo";
+import PanoramaViewer from "./PanoramaViewer";
+import ImageInfo from "./ImageInfo";
 import { EyeOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import { Tabs } from "antd";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
+import { modalState } from "../../../lib/store";
 
 const ModalTab = () => {
   // Get the modal state from Redux
-  const modal = useSelector((state) => state.modal);
+  const modal = useSelector(modalState);
 
   // Get the active tab and current image from the modal state
-  const activeTab = modal.modalTab;
+  const activeTab = modal.activeTab;
   const currentImage = modal.modalData;
 
   // Set up state for the current tab

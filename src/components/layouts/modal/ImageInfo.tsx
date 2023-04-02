@@ -2,12 +2,14 @@ import React from "react";
 import { Descriptions, Divider } from "antd";
 import moment from "moment-timezone";
 
-const ImageInfo = ({ imageData }) => {
-  const formatDate = (date, region) => {
+const ImageInfo = ({ imageData }: any) => {
+  // Function to format data with timezone
+  const formatDate = (date: any, region: string) => {
     return moment(date).tz(region).format("MMMM Do YYYY h:mm:ss a");
   };
   return (
     <>
+      {/* Descriptions for title and subject */}
       <Descriptions title="Description">
         <Descriptions.Item label="Title">
           {imageData.fileName ?? "-"}
@@ -17,10 +19,10 @@ const ImageInfo = ({ imageData }) => {
         </Descriptions.Item>
       </Descriptions>
 
+      {/* Divider and descriptions for origin */}
       <Divider orientation="left" orientationMargin={3}>
         Origin
       </Divider>
-
       <Descriptions>
         <Descriptions.Item label="Authors">
           {imageData.Artist ?? "-"}
@@ -36,10 +38,10 @@ const ImageInfo = ({ imageData }) => {
         </Descriptions.Item>
       </Descriptions>
 
+      {/* Divider and descriptions for file */}
       <Divider orientation="left" orientationMargin={3}>
         File
       </Divider>
-
       <Descriptions>
         <Descriptions.Item label="Item type">
           {imageData.fileType ?? "-"}
@@ -58,10 +60,10 @@ const ImageInfo = ({ imageData }) => {
         </Descriptions.Item>
       </Descriptions>
 
+      {/* Divider and descriptions for camera */}
       <Divider orientation="left" orientationMargin={3}>
         Camera
       </Divider>
-
       <Descriptions>
         <Descriptions.Item label="Camera maker">
           {imageData.Make ?? "-"}

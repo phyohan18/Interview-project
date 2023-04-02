@@ -2,4 +2,33 @@ body{
   margin: 0;
   padding: 0;
 }
-  
+
+.layout {
+  height: 100%;
+}
+
+.content {
+  padding: 0 50px;
+}
+
+.header {
+  margin: 16px 0;
+}
+
+.tabs-container {
+  padding: 24px;
+  min-height: 380px;
+  background-color: #ffffff;
+}
+
+.footer {
+  text-align: center;
+}
+
+.stats-container {
+  min-height: auto;
+  max-height: 400px;
+  overflow: auto;
+  padding: 0 16px;
+  border: 1px solid rgba(140, 140, 140, 0.35);
+}

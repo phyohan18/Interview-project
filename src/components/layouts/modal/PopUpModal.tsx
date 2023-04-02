@@ -2,7 +2,12 @@ import { Modal } from "antd";
 import ModalTab from "./ModalTab";
 import React from "react";
 
-const PopUpModal = ({ visible, onCancel }) => {
+interface PopUpModalProps {
+  visible: boolean;
+  onCancel: () => void;
+}
+
+const PopUpModal = ({ visible, onCancel }: PopUpModalProps) => {
   return (
     <Modal
       open={visible}

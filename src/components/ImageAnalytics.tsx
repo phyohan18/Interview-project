@@ -2,34 +2,39 @@ import { useEffect } from "react";
 import { Card, Cascader, Row, Col } from "antd";
 import { fetchImageDetails, switchTab } from "../features/imageSlice.js";
 import { useSelector, useDispatch } from "react-redux";
+import { Dispatch } from "@reduxjs/toolkit";
+import { imageState } from "../lib/store.js";
+import ImageBoundingBox from "./layouts/analytics/ImageBoundingBox";
+import AnalyticsInsightPanel from "./layouts/analytics/AnalyticsInsightPanel";
 
-import ImageBoundingBox from "./ImageBoundingBox.jsx";
-import AnalyticsInsightPanel from "./AnalyticsInsightPanel.jsx";
-
-const Analytics = () => {
+const ImageAnalytics = () => {
   // Getting image data from redux store
-  const image = useSelector((state) => state.image);
+  const image = useSelector(imageState);
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<Dispatch<any>>();
 
+  // Fetching image details from server on mount
   useEffect(() => {
     dispatch(fetchImageDetails(image.panoramaImages[0].value));
   }, []);
 
-  const onChange = (_, selectedOptions) => {
-    const imageUrl = selectedOptions.map((o) => o.value).join(", ");
+  // Cascader onChange event handler to fetch image details for selected image
+  const onChange = (_: any, selectedOptions: any) => {
+    const imageUrl = selectedOptions.map((o: any) => o.value).join(", ");
     dispatch(fetchImageDetails(imageUrl));
   };
 
-  const onTabChange = (key) => {
+  // Tab change event handler to switch between available image features
+  const onTabChange = (key: string) => {
     dispatch(switchTab(key));
   };
+  
   return (
     <Card
       loading={image.isLoading}
       style={{ width: "100%" }}
-      activeTabKey={image.cardTab}
-      tabList={image.imageDetails.availableFeatures}
+      activeTabKey={image.activeTab}
+      tabList={image.imageAvailableFeatures}
       onTabChange={onTabChange}
       title={
         <Cascader
@@ -56,4 +61,4 @@ const Analytics = () => {
   );
 };
 
-export default Analytics;
+export default ImageAnalytics;

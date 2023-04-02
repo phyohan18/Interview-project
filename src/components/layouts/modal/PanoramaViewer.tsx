@@ -1,10 +1,10 @@
 import React, { useEffect, useRef } from "react";
-import { urlFor } from "../lib/sanityClient";
-import SceneInit from "../lib/SceneInit";
+import { urlFor } from "../../../lib/sanityClient";
+import SceneInit from "../../../lib/SceneInit";
 
-const PanoramaViewer = ({ image }) => {
-  const canvasRef = useRef();
-  const viewerRef = useRef(null);
+const PanoramaViewer = ({ image }: any) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const viewerRef = useRef<SceneInit | null>(null);
 
   useEffect(() => {
     // NOTE Three.js scene initializing
@@ -24,7 +24,7 @@ const PanoramaViewer = ({ image }) => {
 
     // Cleaning Up Texture on component dismount
     return () => {
-      viewerRef.current.cleanUpTexture();
+      viewerRef.current?.cleanUpTexture();
     };
   }, [image]);
 

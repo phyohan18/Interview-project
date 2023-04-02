@@ -1,17 +1,45 @@
 import * as THREE from "three";
 
 export default class SceneInit {
-  constructor(canvas) {
+  // NOTE: Core components to initialize Three.js app.
+  private scene: THREE.Scene;
+  private camera: THREE.PerspectiveCamera;
+  private renderer: THREE.WebGLRenderer;
+
+  // NOTE: Sphere params
+  private sphereMesh: THREE.Mesh;
+  private sphereGeometry: THREE.SphereGeometry;
+  private sphereMaterial: THREE.MeshBasicMaterial;
+  private texture: THREE.Texture;
+
+  // NOTE: Camera params
+  private fov: number;
+  private nearPlane: number;
+  private farPlane: number;
+  private canvas: HTMLCanvasElement;
+
+  // NOTE: Event params
+  private isUserInteracting: boolean;
+  private onPointerDownMouseX: number;
+  private onPointerDownMouseY: number;
+  private lon: number;
+  private onPointerDownLon: number;
+  private lat: number;
+  private onPointerDownLat: number;
+  private phi: number;
+  private theta: number;
+
+  constructor(canvas: any) {
     // NOTE: Core components to initialize Three.js app.
-    this.scene = undefined;
-    this.camera = undefined;
-    this.renderer = undefined;
+    this.scene = new THREE.Scene();
+    this.camera = new THREE.PerspectiveCamera();
+    this.renderer = new THREE.WebGLRenderer();
 
     // NOTE: Sphere params
-    this.sphereMesh = undefined;
-    this.sphereGeometry = undefined;
-    this.sphereMaterial = undefined;
-    this.texture = undefined;
+    this.sphereMesh = new THREE.Mesh();
+    this.sphereGeometry = new THREE.SphereGeometry();
+    this.sphereMaterial = new THREE.MeshBasicMaterial();
+    this.texture = new THREE.Texture();
 
     // NOTE: Camera params
     this.fov = 75;
@@ -60,12 +88,15 @@ export default class SceneInit {
     this.canvas.addEventListener("wheel", this.onDocumentMouseWheel);
     this.canvas.addEventListener("dragover", function (event) {
       event.preventDefault();
+      // @ts-ignore
       event.dataTransfer.dropEffect = "copy";
     });
     this.canvas.addEventListener("dragenter", function () {
+      // @ts-ignore
       this.canvas.body.style.opacity = 0.5;
     });
     this.canvas.addEventListener("dragleave", function () {
+      // @ts-ignore
       this.canvas.body.style.opacity = 1;
     });
     this.scene = new THREE.Scene();
@@ -112,7 +143,7 @@ export default class SceneInit {
     this.renderer.setSize(this.canvas.clientWidth, this.canvas.clientHeight);
   }
 
-  onPointerDown(event) {
+  onPointerDown(event: any) {
     if (event.isPrimary === false) return;
 
     this.isUserInteracting = true;
@@ -127,7 +158,7 @@ export default class SceneInit {
     this.canvas.addEventListener("pointerup", this.onPointerUp);
   }
 
-  onPointerMove(event) {
+  onPointerMove(event: any) {
     if (event.isPrimary === false) return;
 
     this.lon =
@@ -136,7 +167,7 @@ export default class SceneInit {
       (event.clientY - this.onPointerDownMouseY) * 0.1 + this.onPointerDownLat;
   }
 
-  onPointerUp(event) {
+  onPointerUp(event: any) {
     if (event.isPrimary === false) return;
 
     this.isUserInteracting = false;
@@ -145,18 +176,20 @@ export default class SceneInit {
     this.canvas.removeEventListener("pointerup", this.onPointerUp);
   }
 
-  onDocumentMouseWheel(event) {
+  onDocumentMouseWheel(event: any) {
     const fov = this.camera.fov + event.deltaY * 0.05;
     this.camera.fov = THREE.MathUtils.clamp(fov, 10, 75);
     this.camera.updateProjectionMatrix();
   }
 
   // Updating Sphere Texture
-  updateTexture(textureImage) {
+  updateTexture(textureImage: any) {
     let loader = new THREE.TextureLoader();
     this.texture = loader.load(textureImage, () => {
       // Updating Sphere Texture
+      // @ts-ignore
       this.sphereMesh.material.map = this.texture;
+      // @ts-ignore
       this.sphereMesh.material.needsUpdate = true;
     });
   }

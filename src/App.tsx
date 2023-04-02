@@ -1,16 +1,17 @@
 import { TableOutlined, PieChartOutlined } from "@ant-design/icons";
 import { Tabs, Layout } from "antd";
+
 const { Content, Footer } = Layout;
 
 import ImageTable from "./components/ImageTable";
-import Analytics from "./components/Analytics";
+import ImageAnalytics from "./components/ImageAnalytics";
 
 const App = () => {
   return (
-    <Layout style={{ height: "100%" }}>
-      <Content style={{ padding: "0 50px" }}>
-        <h2 style={{ margin: "16px 0" }}>Dashboard</h2>
-        <div style={{ padding: 24, minHeight: 380, background: "#FFFFFF" }}>
+    <Layout className="layout">
+      <Content className="content">
+        <h2 className="header">Dashboard</h2>
+        <div className="tabs-container">
           <Tabs
             defaultActiveKey="1"
             items={[
@@ -22,7 +23,7 @@ const App = () => {
                   </span>
                 ),
                 key: "1",
-                children: <ImageTable />,
+                children: <ImageTable/>,
               },
               {
                 label: (
@@ -32,13 +33,13 @@ const App = () => {
                   </span>
                 ),
                 key: "2",
-                children: <Analytics />,
+                children: <ImageAnalytics/>,
               },
             ]}
           />
         </div>
       </Content>
-      <Footer style={{ textAlign: "center" }}>
+      <Footer className="footer">
         Panorama Viewer ©{new Date().getFullYear()} Created by Phyo Pyae Sone
         Han
       </Footer>
